@@ -1,0 +1,51 @@
+import socket
+
+def bar_to_atmosphere(pressure):
+    return pressure * 0.986923
+
+def main():
+    host = "192.168.75.130"
+    port = 8888
+
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((host, port))
+    server_socket.listen(1)
+    print("Server is listening on {}:{}".format(host, port))
+
+    while True:
+        conn, addr = server_socket.accept()
+        print("Connection from:", addr)
+
+        data = conn.recv(1024)
+        if not data:
+            break
+
+        pressure_in_bar = float(data)
+        atmosphere_standard = bar_to_atmosphere(pressure_in_bar)
+        conn.send(str(atmosphere_standard).encode())
+
+        conn.close()
+
+if __name__ == "__main__":
+    main()
+
+
+import socket
+
+def main():
+    host = "192.168.75.130"
+    port = 8888
+
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((host, port))
+
+    pressure_in_bar = float(input("Enter the pressure value in bar: "))
+    client_socket.send(str(pressure_in_bar).encode())
+
+    atmosphere_standard = client_socket.recv(1024).decode()
+    print("Received atmosphere standard value:", atmosphere_standard)
+
+    client_socket.close()
+
+if __name__ == "__main__":
+    main()
